@@ -6,11 +6,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户
- * @TableName user
+ * 图表信息表
+ * @TableName chart
  */
-@TableName(value ="user")
-public class User implements Serializable {
+@TableName(value ="chart")
+public class Chart implements Serializable {
     /**
      * id
      */
@@ -18,29 +18,34 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 账号
+     * 分析目标
      */
-    private String userAccount;
+    private String goal;
 
     /**
-     * 密码
+     * 图表数据
      */
-    private String userPassword;
+    private String chartData;
 
     /**
-     * 用户昵称
+     * 图表类型
      */
-    private String userName;
+    private String chartType;
 
     /**
-     * 用户头像
+     * 生成的图表数据
      */
-    private String userAvatar;
+    private String genChart;
 
     /**
-     * 用户角色：user/admin
+     * 生成的分析结论
      */
-    private String userRole;
+    private String genResult;
+
+    /**
+     * 创建用户 id
+     */
+    private Long userId;
 
     /**
      * 创建时间
@@ -76,73 +81,87 @@ public class User implements Serializable {
     }
 
     /**
-     * 账号
+     * 分析目标
      */
-    public String getUserAccount() {
-        return userAccount;
+    public String getGoal() {
+        return goal;
     }
 
     /**
-     * 账号
+     * 分析目标
      */
-    public void setUserAccount(String userAccount) {
-        this.userAccount = userAccount;
+    public void setGoal(String goal) {
+        this.goal = goal;
     }
 
     /**
-     * 密码
+     * 图表数据
      */
-    public String getUserPassword() {
-        return userPassword;
+    public String getChartData() {
+        return chartData;
     }
 
     /**
-     * 密码
+     * 图表数据
      */
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setChartData(String chartData) {
+        this.chartData = chartData;
     }
 
     /**
-     * 用户昵称
+     * 图表类型
      */
-    public String getUserName() {
-        return userName;
+    public String getChartType() {
+        return chartType;
     }
 
     /**
-     * 用户昵称
+     * 图表类型
      */
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setChartType(String chartType) {
+        this.chartType = chartType;
     }
 
     /**
-     * 用户头像
+     * 生成的图表数据
      */
-    public String getUserAvatar() {
-        return userAvatar;
+    public String getGenChart() {
+        return genChart;
     }
 
     /**
-     * 用户头像
+     * 生成的图表数据
      */
-    public void setUserAvatar(String userAvatar) {
-        this.userAvatar = userAvatar;
+    public void setGenChart(String genChart) {
+        this.genChart = genChart;
     }
 
     /**
-     * 用户角色：user/admin
+     * 生成的分析结论
      */
-    public String getUserRole() {
-        return userRole;
+    public String getGenResult() {
+        return genResult;
     }
 
     /**
-     * 用户角色：user/admin
+     * 生成的分析结论
      */
-    public void setUserRole(String userRole) {
-        this.userRole = userRole;
+    public void setGenResult(String genResult) {
+        this.genResult = genResult;
+    }
+
+    /**
+     * 创建用户 id
+     */
+    public Long getUserId() {
+        return userId;
+    }
+
+    /**
+     * 创建用户 id
+     */
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     /**
@@ -198,13 +217,14 @@ public class User implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        User other = (User) that;
+        Chart other = (Chart) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserAccount() == null ? other.getUserAccount() == null : this.getUserAccount().equals(other.getUserAccount()))
-            && (this.getUserPassword() == null ? other.getUserPassword() == null : this.getUserPassword().equals(other.getUserPassword()))
-            && (this.getUserName() == null ? other.getUserName() == null : this.getUserName().equals(other.getUserName()))
-            && (this.getUserAvatar() == null ? other.getUserAvatar() == null : this.getUserAvatar().equals(other.getUserAvatar()))
-            && (this.getUserRole() == null ? other.getUserRole() == null : this.getUserRole().equals(other.getUserRole()))
+            && (this.getGoal() == null ? other.getGoal() == null : this.getGoal().equals(other.getGoal()))
+            && (this.getChartData() == null ? other.getChartData() == null : this.getChartData().equals(other.getChartData()))
+            && (this.getChartType() == null ? other.getChartType() == null : this.getChartType().equals(other.getChartType()))
+            && (this.getGenChart() == null ? other.getGenChart() == null : this.getGenChart().equals(other.getGenChart()))
+            && (this.getGenResult() == null ? other.getGenResult() == null : this.getGenResult().equals(other.getGenResult()))
+            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
             && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()));
@@ -215,11 +235,12 @@ public class User implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getUserAccount() == null) ? 0 : getUserAccount().hashCode());
-        result = prime * result + ((getUserPassword() == null) ? 0 : getUserPassword().hashCode());
-        result = prime * result + ((getUserName() == null) ? 0 : getUserName().hashCode());
-        result = prime * result + ((getUserAvatar() == null) ? 0 : getUserAvatar().hashCode());
-        result = prime * result + ((getUserRole() == null) ? 0 : getUserRole().hashCode());
+        result = prime * result + ((getGoal() == null) ? 0 : getGoal().hashCode());
+        result = prime * result + ((getChartData() == null) ? 0 : getChartData().hashCode());
+        result = prime * result + ((getChartType() == null) ? 0 : getChartType().hashCode());
+        result = prime * result + ((getGenChart() == null) ? 0 : getGenChart().hashCode());
+        result = prime * result + ((getGenResult() == null) ? 0 : getGenResult().hashCode());
+        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
@@ -233,11 +254,12 @@ public class User implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", userAccount=").append(userAccount);
-        sb.append(", userPassword=").append(userPassword);
-        sb.append(", userName=").append(userName);
-        sb.append(", userAvatar=").append(userAvatar);
-        sb.append(", userRole=").append(userRole);
+        sb.append(", goal=").append(goal);
+        sb.append(", chartData=").append(chartData);
+        sb.append(", chartType=").append(chartType);
+        sb.append(", genChart=").append(genChart);
+        sb.append(", genResult=").append(genResult);
+        sb.append(", userId=").append(userId);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);

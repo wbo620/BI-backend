@@ -1,11 +1,14 @@
 package com.ice.init.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ice.init.model.entity.User;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * 用户数据库操作
- */
+* @author hallen
+* @description 针对表【user(用户)】的数据库操作Mapper
+* @createDate 2023-10-21 16:12:13
+* @Entity com.ice.init.model.entity.User
+*/
 public interface UserMapper extends BaseMapper<User> {
 
 }
