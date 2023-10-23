@@ -9,7 +9,7 @@ import java.util.Date;
  * 图表信息表
  * @TableName chart
  */
-@TableName(value ="chart")
+@TableName(value = "chart")
 public class Chart implements Serializable {
     /**
      * id
@@ -17,6 +17,10 @@ public class Chart implements Serializable {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
+    /**
+     * 图表名称
+     */
+    private String name;
     /**
      * 分析目标
      */
@@ -65,6 +69,23 @@ public class Chart implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    public Chart() {
+    }
+
+    public Chart(Long id, String name, String goal, String chartData, String chartType, String genChart, String genResult, Long userId, Date createTime, Date updateTime, Integer isDelete, long serialVersionUID) {
+        this.id = id;
+        this.name = name;
+        this.goal = goal;
+        this.chartData = chartData;
+        this.chartType = chartType;
+        this.genChart = genChart;
+        this.genResult = genResult;
+        this.userId = userId;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.isDelete = isDelete;
+    }
 
     /**
      * id
@@ -266,5 +287,23 @@ public class Chart implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    /**
+     * 获取
+     *
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * 设置
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

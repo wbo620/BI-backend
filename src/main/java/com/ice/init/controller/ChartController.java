@@ -3,29 +3,30 @@ package com.ice.init.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
-import org.apache.commons.lang3.StringUtils;
 import com.ice.init.annotation.AuthCheck;
 import com.ice.init.common.BaseResponse;
 import com.ice.init.common.DeleteRequest;
 import com.ice.init.common.ErrorCode;
-import org.apache.commons.lang3.ObjectUtils;
 import com.ice.init.common.ResultUtils;
 import com.ice.init.constant.CommonConstant;
 import com.ice.init.constant.UserConstant;
 import com.ice.init.exception.BusinessException;
 import com.ice.init.exception.ThrowUtils;
-import com.ice.init.model.dto.chart.ChartAddRequest;
-import com.ice.init.model.dto.chart.ChartEditRequest;
-import com.ice.init.model.dto.chart.ChartQueryRequest;
-import com.ice.init.model.dto.chart.ChartUpdateRequest;
+import com.ice.init.manager.AiManager;
+import com.ice.init.model.dto.chart.*;
 import com.ice.init.model.entity.Chart;
 import com.ice.init.model.entity.User;
+import com.ice.init.model.vo.BiResponse;
 import com.ice.init.service.ChartService;
 import com.ice.init.service.UserService;
+import com.ice.init.utils.ExcelUtils;
 import com.ice.init.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +44,8 @@ public class ChartController {
     private UserService userService;
     @Resource
     private ChartService chartService;
+    @Resource
+    private AiManager aiManager;
 
     // region 增删改查
 
@@ -204,6 +207,109 @@ public class ChartController {
         boolean result = chartService.updateById(chart);
         return ResultUtils.success(result);
     }
+
+    /**
+     * 智能分析
+     *
+     * @param multipartFile
+     * @param request
+     * @return
+     */
+    @PostMapping("/gen")
+    public BaseResponse<BiResponse> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
+                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+
+        //获取前端输入信息
+        String chartType = genChartByAiRequest.getChartType();
+        String name = genChartByAiRequest.getName();
+        String goal = genChartByAiRequest.getGoal();
+        User loginUser = userService.getLoginUser(request);
+
+        //校验
+        ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
+        ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
+
+        //模型id
+        long biModelId = 1659171950288818178L;
+
+
+        //final String prompt="你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
+        //        "分析需求：\n" +
+        //        "{数据分析的需求或者目标}\n" +
+        //        "原始数据：\n" +
+        //        "{csv格式的原始数据，用,作为分隔符}\n" +
+        //        "请根据这两部分内容，按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）\n" +
+        //        "【【【【【\n" +
+        //        "{前端 Echarts V5 的 option 配置对象js代码，合理地将数据进行可视化，不要生成任何多余的内容，比如注释}\n" +
+        //        "【【【【【\n" +
+        //        "{明确的数据分析结论、越详细越好，不要生成多余的注释}";
+
+        //用户输入,拼接需求和目标
+        StringBuilder userInput = new StringBuilder();
+        //userInput.append("你是一个专业的数据分析师,接下来我会给你我的分析目标的原始数据,请给出分析结论.");
+        userInput.append("分析需求: ").append("\n");
+        String userGoal = goal;
+        if (StringUtils.isNotBlank(chartType)) {
+            userGoal += ",使用" + chartType;
+        }
+        userInput.append(userGoal).append("\n");
+        userInput.append("原始数据: ").append("\n");
+        //压缩数据(csv)
+        String csvData = ExcelUtils.excelToCsv(multipartFile);
+        userInput.append(csvData).append("\n");
+        String result = aiManager.doChat(biModelId, userInput.toString());
+
+        //切割数据,获得图表数据代码和分析结论
+        String[] split = result.split("【【【【【");
+        if (split.length < 3) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
+        }
+        String genChart = split[1].trim();
+        String genResult = split[2].trim();
+
+        //保存图表信息到数据库
+        Chart chart = new Chart();
+        chart.setGoal(goal);
+        chart.setChartData(csvData);
+        chart.setChartType(chartType);
+        chart.setGenChart(genChart);
+        chart.setGenResult(genResult);
+        chart.setUserId(loginUser.getId());
+        chart.setName(name);
+        boolean saveResult = chartService.save(chart);
+        ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
+
+        //返回前端响应信息
+        BiResponse biResponse = new BiResponse();
+        biResponse.setGenChart(genChart);
+        biResponse.setGenResult(genResult);
+        biResponse.setChartId(chart.getId());
+
+        return ResultUtils.success(biResponse);
+        //User loginUser = userService.getLoginUser(request);
+        //// 文件目录：根据业务、用户来划分
+        //String uuid = RandomStringUtils.randomAlphanumeric(8);
+        //String filename = uuid + "-" + multipartFile.getOriginalFilename();
+        //File file = null;
+        //try {
+        //
+        //    // 返回可访问地址
+        //    return ResultUtils.success("");
+        //} catch (Exception e) {
+        //    //log.error("file upload error, filepath = " + filepath, e);
+        //    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
+        //} finally {
+        //    if (file != null) {
+        //        // 删除临时文件
+        //        boolean delete = file.delete();
+        //        if (!delete) {
+        //            //log.error("file delete error, filepath = {}", filepath);
+        //        }
+        //    }
+        //}
+
+    }
+
 
     /**
      * 获取查询包装类
