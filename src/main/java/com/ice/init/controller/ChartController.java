@@ -1,5 +1,6 @@
 package com.ice.init.controller;
 
+import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
@@ -13,6 +14,7 @@ import com.ice.init.constant.UserConstant;
 import com.ice.init.exception.BusinessException;
 import com.ice.init.exception.ThrowUtils;
 import com.ice.init.manager.AiManager;
+import com.ice.init.manager.RedisLimiterManager;
 import com.ice.init.model.dto.chart.*;
 import com.ice.init.model.entity.Chart;
 import com.ice.init.model.entity.User;
@@ -30,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 图标
@@ -46,6 +50,8 @@ public class ChartController {
     private ChartService chartService;
     @Resource
     private AiManager aiManager;
+    @Resource
+    private RedisLimiterManager redisLimiterManager;
 
     // region 增删改查
 
@@ -223,16 +229,31 @@ public class ChartController {
         String chartType = genChartByAiRequest.getChartType();
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
-        User loginUser = userService.getLoginUser(request);
+
 
         //校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
 
+        //校验文件(文件大小和后缀)
+        long size = multipartFile.getSize();
+        String originalFilename = multipartFile.getOriginalFilename();
+        final long ONE_MB = 1024 * 1024L;
+        ThrowUtils.throwIf(size > ONE_MB, ErrorCode.FILE_SIZE_ERROR, " 文件过大");
+        String suffix = FileUtil.getSuffix(originalFilename);
+        final List<String> validFileSuffixList = Arrays.asList("xls", "xlsx", "svg");
+        ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.FILE_TYPE_ERROR, "文件后缀非法");
+
+
+        User loginUser = userService.getLoginUser(request);
+
+        //针对这个方法,使用用户的id进行限流
+        redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
+
         //模型id
         long biModelId = 1659171950288818178L;
 
-
+        //使用别的AI接口需要设置以下内容
         //final String prompt="你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
         //        "分析需求：\n" +
         //        "{数据分析的需求或者目标}\n" +
@@ -286,7 +307,7 @@ public class ChartController {
         biResponse.setChartId(chart.getId());
 
         return ResultUtils.success(biResponse);
-        //User loginUser = userService.getLoginUser(request);
+
         //// 文件目录：根据业务、用户来划分
         //String uuid = RandomStringUtils.randomAlphanumeric(8);
         //String filename = uuid + "-" + multipartFile.getOriginalFilename();
