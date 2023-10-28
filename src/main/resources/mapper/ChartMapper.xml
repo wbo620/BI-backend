@@ -8,6 +8,8 @@
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="goal" column="goal" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="execMessage" column="execMessage" jdbcType="VARCHAR"/>
         <result property="chartData" column="chartData" jdbcType="VARCHAR"/>
         <result property="chartType" column="chartType" jdbcType="VARCHAR"/>
         <result property="genChart" column="genChart" jdbcType="VARCHAR"/>
@@ -19,9 +21,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,goal,chartData,
+        id,name,goal,chartData,status,execMessage
         chartType,genChart,genResult,
         userId,createTime,updateTime,
         isDelete
     </sql>
+
 </mapper>

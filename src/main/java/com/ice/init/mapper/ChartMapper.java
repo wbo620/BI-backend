@@ -1,5 +1,7 @@
 package com.ice.init.mapper;
 
+import java.util.Date;
+
 import com.ice.init.model.entity.Chart;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -10,6 +12,25 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Entity com.ice.init.model.entity.Chart
  */
 public interface ChartMapper extends BaseMapper<Chart> {
+
+    /**
+     * TODO 动态根据id建立数据表
+     */
+    default void buildDataBaseByChartId(Chart chart) {
+
+        Long id = chart.getId();
+        String goal = chart.getGoal();
+        String chartData = chart.getChartData();
+        String chartType = chart.getChartType();
+        String genChart = chart.getGenChart();
+        String genResult = chart.getGenResult();
+        Long userId = chart.getUserId();
+        Date createTime = chart.getCreateTime();
+        Date updateTime = chart.getUpdateTime();
+        Integer isDelete = chart.getIsDelete();
+        String name = chart.getName();
+        String sql = "create table" + id;
+    }
 
 }
 
