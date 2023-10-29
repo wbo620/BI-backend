@@ -420,7 +420,6 @@ public class ChartController {
             updateChartResult.setId(chart.getId());
             updateChartResult.setGenChart(genChart);
             updateChartResult.setGenResult(genResult);
-            // todo 建议定义状态为枚举值
             updateChartResult.setStatus(ChartStatus.SUCCEED.getValue());
             boolean updateResult = chartService.updateById(updateChartResult);
             if (!updateResult) {
