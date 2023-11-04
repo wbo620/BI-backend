@@ -8,7 +8,6 @@ import com.ice.init.manager.AiManager;
 import com.ice.init.model.entity.Chart;
 import com.ice.init.model.enums.ChartStatus;
 import com.ice.init.service.ChartService;
-import com.ice.init.utils.ExcelUtils;
 import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

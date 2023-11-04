@@ -287,6 +287,16 @@ public class ChartController {
         //压缩数据(csv)
         String csvData = ExcelUtils.excelToCsv(multipartFile);
         userInput.append(csvData).append("\n");
+        //先把需求保存到数据库
+        Chart chart = new Chart();
+        chart.setGoal(goal);
+        chart.setChartData(csvData);
+        chart.setChartType(chartType);
+        chart.setUserId(loginUser.getId());
+        chart.setName(name);
+        //默认生成失败
+        chart.setStatus(ChartStatus.FAILED.getValue());
+        boolean save = chartService.save(chart);
         String result = aiManager.doChat(biModelId, userInput.toString());
 
         //切割数据,获得图表数据代码和分析结论
@@ -298,15 +308,13 @@ public class ChartController {
         String genResult = split[2].trim();
 
         //保存图表信息到数据库
-        Chart chart = new Chart();
-        chart.setGoal(goal);
-        chart.setChartData(csvData);
-        chart.setChartType(chartType);
-        chart.setGenChart(genChart);
-        chart.setGenResult(genResult);
-        chart.setUserId(loginUser.getId());
-        chart.setName(name);
-        boolean saveResult = chartService.save(chart);
+        Chart updateChart = new Chart();
+        updateChart.setId(chart.getId());
+        updateChart.setGenChart(genChart);
+        updateChart.setGenResult(genResult);
+        //到此,生成成功,修改图标状态为成功
+        updateChart.setStatus(ChartStatus.SUCCEED.getValue());
+        boolean saveResult = chartService.updateById(updateChart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
 
         //返回前端响应信息
