@@ -1,16 +1,21 @@
 # 线上配置文件
-# 
-# 
 server:
+  address: 0.0.0.0
   port: 8101
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
 spring:
   # 数据库配置
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
+    url: jdbc:mysql://localhost:3306/bi
     username: root
-    password: 123456
+    password: 123123123
   # Redis 配置
   # todo 需替换配置
   redis:
@@ -18,14 +23,19 @@ spring:
     host: localhost
     port: 6379
     timeout: 5000
-    password: 123456
+#    password: 123456
   # Elasticsearch 配置
   # todo 需替换配置
-  elasticsearch:
-    uris: http://localhost:9200
-    username: root
-    password: 123456
+#  elasticsearch:
+#    uris: http://localhost:9200
+#    username: root
+#    password: 123456
 mybatis-plus:
   configuration:
     # 生产环境关闭日志
     log-impl: ''
+
+yuapi:
+  client:
+    access-key: 8ne9rqrgjdoeh6ntuydkwp3zofr2hrn6
+    secret-key: dttowbf7ioxwtmub4ld6mzca86b1v72q
