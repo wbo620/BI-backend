@@ -8,10 +8,11 @@ import javax.annotation.Resource;
 // 使用@Component注解标记该类为一个组件，让Spring框架能够扫描并将其纳入管理
 @Component
 public class MyMessageProducer {
-	// 使用@Resource注解对rabbitTemplate进行依赖注入
+    // 使用@Resource注解对rabbitTemplate进行依赖注入
     @Resource
     private RabbitTemplate rabbitTemplate;
-	/**
+
+    /**
      * 发送消息的方法
      *
      * @param exchange   交换机名称，指定消息要发送到哪个交换机

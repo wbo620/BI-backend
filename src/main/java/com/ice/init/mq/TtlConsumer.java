@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TtlConsumer {
-	// 定义我们正在监听的队列名称"ttl_queue"
+    // 定义我们正在监听的队列名称"ttl_queue"
     private final static String QUEUE_NAME = "ttl_queue";
 
     public static void main(String[] argv) throws Exception {
@@ -29,7 +29,7 @@ public class TtlConsumer {
         args.put("x-message-ttl", 5000);
         // 创建队列，并传入队列名称、是否持久化、是否私有、是否自动删除，args 指定参数
         channel.queueDeclare(QUEUE_NAME, false, false, false, args);
-    	// 打印等待消息的提示信息
+        // 打印等待消息的提示信息
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
         // 定义了如何处理消息的回调函数
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -37,6 +37,7 @@ public class TtlConsumer {
             System.out.println(" [x] Received '" + message + "'");
         };
         // 消费消息，该方法会持续阻塞，等待接收消息
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+        });
     }
 }

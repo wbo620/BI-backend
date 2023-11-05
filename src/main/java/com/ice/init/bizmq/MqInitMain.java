@@ -30,7 +30,7 @@ public class MqInitMain {
             // 将队列绑定到交换机，指定路由键为 "my_routingKey"
             channel.queueBind(queueName, EXCHANGE_NAME, "my_routingKey");
         } catch (Exception e) {
-        	// 异常处理
+            // 异常处理
         }
     }
 }

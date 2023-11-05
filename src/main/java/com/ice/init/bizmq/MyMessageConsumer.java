@@ -20,9 +20,9 @@ public class MyMessageConsumer {
     /**
      * 接收消息的方法
      *
-     * @param message      接收到的消息内容，是一个字符串类型
-     * @param channel      消息所在的通道，可以通过该通道与 RabbitMQ 进行交互，例如手动确认消息、拒绝消息等
-     * @param deliveryTag  消息的投递标签，用于唯一标识一条消息
+     * @param message     接收到的消息内容，是一个字符串类型
+     * @param channel     消息所在的通道，可以通过该通道与 RabbitMQ 进行交互，例如手动确认消息、拒绝消息等
+     * @param deliveryTag 消息的投递标签，用于唯一标识一条消息
      */
     // 使用@SneakyThrows注解简化异常处理
     @SneakyThrows

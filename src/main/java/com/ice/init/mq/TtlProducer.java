@@ -7,7 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.nio.charset.StandardCharsets;
 
 public class TtlProducer {
-	// 定义队列名称为"ttl_queue"
+    // 定义队列名称为"ttl_queue"
     private final static String QUEUE_NAME = "ttl_queue";
 
     public static void main(String[] argv) throws Exception {
@@ -21,10 +21,10 @@ public class TtlProducer {
             // 后面要放args,在生产者你又想重新创建队列，又不指定参数，那肯定会有问题，
             // 所以要把这里的创建队列注释掉。
             // channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            
+
             // 发送消息
             String message = "Hello World!";
-        	// 使用默认的交换机，将消息发送到指定队列
+            // 使用默认的交换机，将消息发送到指定队列
             channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
             System.out.println(" [x] Sent '" + message + "'");
         }

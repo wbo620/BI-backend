@@ -25,7 +25,7 @@ public enum ChartStatus {
 
     private final String value;
 
-    ChartStatus(String value , String text) {
+    ChartStatus(String value, String text) {
         this.text = text;
         this.value = value;
     }

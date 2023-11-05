@@ -10,6 +10,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+
 import java.nio.charset.StandardCharsets;
 
 public class SingleConsumer {
@@ -37,6 +38,7 @@ public class SingleConsumer {
             System.out.println(" [x] Received '" + message + "'");
         };
         // 在频道上开始消费队列中的消息，接收到的消息会传递给deliverCallback来处理,会持续阻塞
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+        });
     }
 }

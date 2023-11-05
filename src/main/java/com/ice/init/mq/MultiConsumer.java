@@ -26,7 +26,7 @@ public class MultiConsumer {
             // (这个先注释)设置预取计数为1，这样RabbitMQ就会在给消费者新消息之前等待先前的消息被确认
             channel.basicQos(1);
 
-            int finalI=i;
+            int finalI = i;
             // 创建消息接收回调函数,以便接收消息
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 // 将接收到的消息转为字符串
@@ -34,16 +34,16 @@ public class MultiConsumer {
 
                 try {
                     // (放到try里)打印出接收到的消息
-                    System.out.println(" [x] Received '"+"编号:"+finalI+" : " + message + "'");
+                    System.out.println(" [x] Received '" + "编号:" + finalI + " : " + message + "'");
                     //发送确认消息,确认消息已经被处理
-                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);
+                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     // 处理工作,模拟处理消息所花费的时间,机器处理能力有限(接收一条消息,20秒后再接收下一条消息)
-                    Thread.sleep(20000) ;
+                    Thread.sleep(20000);
                 } catch (InterruptedException e) {
                     // 模拟处理消息所花费的时间
                     e.printStackTrace();
                     //发生异常,拒绝确认消息,发送拒绝信息,并不重新投递该消息
-                    channel.basicNack(delivery.getEnvelope().getDeliveryTag(),false,false);
+                    channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
                 } finally {
                     // 打印出完成消息处理的提示
                     System.out.println(" [x] Done");
@@ -52,7 +52,8 @@ public class MultiConsumer {
                 }
             };
             // 开始消费消息,传入队列名称,是否自动确认,投递回调和消费者取消回调
-            channel.basicConsume(TASK_QUEUE_NAME, false, deliverCallback, consumerTag -> { });
+            channel.basicConsume(TASK_QUEUE_NAME, false, deliverCallback, consumerTag -> {
+            });
         }
 
     }

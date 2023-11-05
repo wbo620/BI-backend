@@ -3,7 +3,6 @@ package com.ice.init.controller;
 import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.gson.Gson;
 import com.ice.init.annotation.AuthCheck;
 import com.ice.init.bizmq.BiMessageProducer;
 import com.ice.init.common.BaseResponse;
@@ -35,20 +34,21 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * 图标
+ * 图表
+ *
+ * @author hallen
  */
 @RestController
 @RequestMapping("/chart")
 @Slf4j
 public class ChartController {
 
-    private final static Gson GSON = new Gson();
+    private final long ONE_MB = 1024 * 1024L;
     @Resource
     private UserService userService;
     @Resource
@@ -247,7 +247,6 @@ public class ChartController {
         //校验文件(文件大小和后缀)
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
-        final long ONE_MB = 1024 * 1024L;
         ThrowUtils.throwIf(size > ONE_MB, ErrorCode.FILE_SIZE_ERROR, " 文件过大");
         String suffix = FileUtil.getSuffix(originalFilename);
         final List<String> validFileSuffixList = Arrays.asList("xls", "xlsx", "svg");
@@ -260,7 +259,7 @@ public class ChartController {
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
 
         //模型id
-        long biModelId = 1659171950288818178L;
+        //long biModelId = 1659171950288818178L;
 
         //使用别的AI接口需要设置以下内容
         //final String prompt="你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
@@ -297,7 +296,7 @@ public class ChartController {
         //默认生成失败
         chart.setStatus(ChartStatus.FAILED.getValue());
         boolean save = chartService.save(chart);
-        String result = aiManager.doChat(biModelId, userInput.toString());
+        String result = aiManager.doChat(CommonConstant.BI_MODEL_ID, userInput.toString());
 
         //切割数据,获得图表数据代码和分析结论
         String[] split = result.split("【【【【【");
@@ -369,7 +368,6 @@ public class ChartController {
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
         // 校验文件大小
-        final long ONE_MB = 1024 * 1024L;
         ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 1M");
         // 校验文件后缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
@@ -443,6 +441,7 @@ public class ChartController {
         biResponse.setChartId(chart.getId());
         return ResultUtils.success(biResponse);
     }
+
     /**
      * 图表生成(异步mq)
      *
@@ -453,7 +452,7 @@ public class ChartController {
      */
     @PostMapping("/gen/async/mq")
     public BaseResponse<BiResponse> genChartMqByAiAsync(@RequestPart("file") MultipartFile multipartFile,
-                                                      GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+                                                        GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
@@ -464,7 +463,7 @@ public class ChartController {
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
         // 校验文件大小
-        final long ONE_MB = 1024 * 1024L;
+
         ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 1M");
         // 校验文件后缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);

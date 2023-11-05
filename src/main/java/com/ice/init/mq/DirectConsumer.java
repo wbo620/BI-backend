@@ -3,7 +3,7 @@ package com.ice.init.mq;
 import com.rabbitmq.client.*;
 
 public class DirectConsumer {
-	// 定义我们正在监听的交换机名称"direct-exchange"
+    // 定义我们正在监听的交换机名称"direct-exchange"
     private static final String EXCHANGE_NAME = "direct-exchange";
 
     public static void main(String[] argv) throws Exception {
@@ -25,7 +25,7 @@ public class DirectConsumer {
         channel.queueDeclare(queueName2, true, false, false, null);
         // 将队列绑定到指定的交换机上，并指定绑定的路由键为 "xiaopi"
         channel.queueBind(queueName2, EXCHANGE_NAME, "xiaopi");
-    	// 打印等待消息的提示信息
+        // 打印等待消息的提示信息
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         // 创建一个 DeliverCallback 实例来处理接收到的消息（xiaoyu）
@@ -41,7 +41,7 @@ public class DirectConsumer {
             System.out.println(" [xiaopi] Received '" +
                     delivery.getEnvelope().getRoutingKey() + "':'" + message + "'");
         };
-    	 // 开始消费队列中的消息（xiaoyu），设置自动确认消息已被消费
+        // 开始消费队列中的消息（xiaoyu），设置自动确认消息已被消费
         channel.basicConsume(queueName, true, xiaoyuDeliverCallback, consumerTag -> {
         });
         // 开始消费队列中的消息（xiaopi），设置自动确认消息已被消费

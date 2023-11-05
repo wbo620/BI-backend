@@ -25,7 +25,7 @@ create table if not exists user
 -- 图表信息表
 create table chart
 (
-    id          bigint auto_increment comment 'id'     primary key,
+    id          bigint auto_increment comment 'id' primary key,
     goal        text                                   null comment '分析目标',
     chartData   text                                   null comment '图表数据',
     chartType   varchar(128)                           null comment '图表类型',
