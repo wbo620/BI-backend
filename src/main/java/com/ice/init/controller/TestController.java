@@ -1,40 +1,29 @@
-package com.ice.init.manager;
-
-/**
- * User: hallen
- * Date: 2023/10/23
- * Time: 15:38
- */
+package com.ice.init.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.ice.init.common.ErrorCode;
 import com.ice.init.config.XfXhConfig;
-import com.ice.init.exception.BusinessException;
 import com.ice.init.listener.XfXhStreamClient;
 import com.ice.init.listener.XfXhWebSocketListener;
 import com.ice.init.model.dto.MsgDTO;
-import com.rabbitmq.client.LongString;
-import com.yupi.yucongming.dev.client.YuCongMingClient;
-import com.yupi.yucongming.dev.common.BaseResponse;
-import com.yupi.yucongming.dev.model.DevChatRequest;
-import com.yupi.yucongming.dev.model.DevChatResponse;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.UUID;
 
 /**
- * 用于对接 AI 平台
+ * @author 狐狸半面添
+ * @create 2023-09-20 1:42
  */
-@Service
+@RestController
+@RequestMapping("/test")
 @Slf4j
-public class AiManager {
-
-    @Resource
-    private YuCongMingClient yuCongMingClient;
+public class TestController {
 
     @Resource
     private XfXhStreamClient xfXhStreamClient;
@@ -42,36 +31,17 @@ public class AiManager {
     @Resource
     private XfXhConfig xfXhConfig;
 
-    /**
-     * AI 对话
-     *
-     * @param message
-     * @return
-     */
-    public String doChat2(long modelId, String message) {
-        // 第三步，构造请求参数
-        DevChatRequest devChatRequest = new DevChatRequest();
-        // 模型id，尾后加L，转成long类型
-        devChatRequest.setModelId(modelId);
-        devChatRequest.setMessage(message);
-        // 第四步，获取响应结果
-        BaseResponse<DevChatResponse> response = yuCongMingClient.doChat(devChatRequest);
-        // 如果响应为null，就抛出系统异常，提示“AI 响应错误”
-        if (response == null) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 响应错误");
-        }
-        return response.getData().getContent();
-    }
 
     /**
      * 发送问题
      *
-     * @param message 问题
+     * @param question 问题
      * @return 星火大模型的回答
      */
-    public String doChat(Long id,String message) {
+    @GetMapping("/sendQuestion")
+    public String sendQuestion(@RequestParam("question") String question) {
         // 如果是无效字符串，则不对大模型进行请求
-        if (StrUtil.isBlank(message)) {
+        if (StrUtil.isBlank(question)) {
             return "无效问题，请重新输入";
         }
         // 获取连接令牌
@@ -80,7 +50,7 @@ public class AiManager {
         }
 
         // 创建消息对象
-        MsgDTO msgDTO = MsgDTO.createUserMsg(message);
+        MsgDTO msgDTO = MsgDTO.createUserMsg(question);
         // 创建监听器
         XfXhWebSocketListener listener = new XfXhWebSocketListener();
         // 发送问题给大模型，生成 websocket 连接

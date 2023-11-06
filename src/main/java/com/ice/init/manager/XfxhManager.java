@@ -1,41 +1,27 @@
 package com.ice.init.manager;
 
-/**
- * User: hallen
- * Date: 2023/10/23
- * Time: 15:38
- */
-
 import cn.hutool.core.util.StrUtil;
-import com.ice.init.common.ErrorCode;
 import com.ice.init.config.XfXhConfig;
-import com.ice.init.exception.BusinessException;
 import com.ice.init.listener.XfXhStreamClient;
 import com.ice.init.listener.XfXhWebSocketListener;
 import com.ice.init.model.dto.MsgDTO;
-import com.rabbitmq.client.LongString;
-import com.yupi.yucongming.dev.client.YuCongMingClient;
-import com.yupi.yucongming.dev.common.BaseResponse;
-import com.yupi.yucongming.dev.model.DevChatRequest;
-import com.yupi.yucongming.dev.model.DevChatResponse;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import org.springframework.stereotype.Service;
+
 
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.UUID;
 
 /**
- * 用于对接 AI 平台
+ * User: hallen
+ * Date: 2023/11/6
+ * Time: 17:13
  */
 @Service
 @Slf4j
-public class AiManager {
-
-    @Resource
-    private YuCongMingClient yuCongMingClient;
-
+public class XfxhManager {
     @Resource
     private XfXhStreamClient xfXhStreamClient;
 
@@ -43,33 +29,12 @@ public class AiManager {
     private XfXhConfig xfXhConfig;
 
     /**
-     * AI 对话
-     *
-     * @param message
-     * @return
-     */
-    public String doChat2(long modelId, String message) {
-        // 第三步，构造请求参数
-        DevChatRequest devChatRequest = new DevChatRequest();
-        // 模型id，尾后加L，转成long类型
-        devChatRequest.setModelId(modelId);
-        devChatRequest.setMessage(message);
-        // 第四步，获取响应结果
-        BaseResponse<DevChatResponse> response = yuCongMingClient.doChat(devChatRequest);
-        // 如果响应为null，就抛出系统异常，提示“AI 响应错误”
-        if (response == null) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 响应错误");
-        }
-        return response.getData().getContent();
-    }
-
-    /**
      * 发送问题
      *
      * @param message 问题
      * @return 星火大模型的回答
      */
-    public String doChat(Long id,String message) {
+    public String doChat(String message) {
         // 如果是无效字符串，则不对大模型进行请求
         if (StrUtil.isBlank(message)) {
             return "无效问题，请重新输入";
