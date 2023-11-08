@@ -1,6 +1,7 @@
 package com.ice.init.controller;
 
 import cn.hutool.core.io.FileUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ice.init.annotation.AuthCheck;
@@ -24,6 +25,7 @@ import com.ice.init.service.ChartService;
 import com.ice.init.service.UserService;
 import com.ice.init.utils.ExcelUtils;
 import com.ice.init.utils.SqlUtils;
+import com.rabbitmq.client.Return;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,10 +35,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 图表
@@ -239,7 +244,6 @@ public class ChartController {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
 
-
         //校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
@@ -269,13 +273,13 @@ public class ChartController {
         //        "{csv格式的原始数据，用,作为分隔符}\n" +
         //        "请根据这两部分内容，按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）\n" +
         //        "【【【【【\n" +
-        //        "{前端 Echarts V5 的 option 配置对象js代码，合理地将数据进行可视化，不要生成任何多余的内容，比如注释}\n" +
+        //        "{这里是 前端 Echarts V5 的 option 配置对象js代码，合理地将数据进行可视化，不要生成任何多余的内容，比如注释}\n" +
         //        "【【【【【\n" +
         //        "{明确的数据分析结论、越详细越好，不要生成多余的注释}";
 
         //用户输入,拼接需求和目标
         StringBuilder userInput = new StringBuilder();
-        //userInput.append("你是一个专业的数据分析师,接下来我会给你我的分析目标的原始数据,请给出分析结论.");
+        //userInput.append("你是一个专业的数据分析师,接下来我会给你我的分析需求的原始数据,请给出分析结论.");
         userInput.append("分析需求: ").append("\n");
         String userGoal = goal;
         if (StringUtils.isNotBlank(chartType)) {
@@ -286,25 +290,26 @@ public class ChartController {
         //压缩数据(csv)
         String csvData = ExcelUtils.excelToCsv(multipartFile);
         userInput.append(csvData).append("\n");
-        //先把需求保存到数据库
+
         Chart chart = new Chart();
         chart.setGoal(goal);
         chart.setChartData(csvData);
         chart.setChartType(chartType);
         chart.setUserId(loginUser.getId());
         chart.setName(name);
-        //默认生成失败
-        chart.setStatus(ChartStatus.FAILED.getValue());
-        boolean save = chartService.save(chart);
-        String result = aiManager.doChat(CommonConstant.BI_MODEL_ID, userInput.toString());
 
-        //切割数据,获得图表数据代码和分析结论
-        String[] split = result.split("【【【【【");
+        //调用Ai
+        String result = aiManager.doChat(null, userInput.toString());
+        //对生成结果分割
+        String[] split = result.split("分割标记：》》》》》");
         if (split.length < 3) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
         }
         String genChart = split[1].trim();
         String genResult = split[2].trim();
+
+        //过滤生成的图表代码
+        genChart = genChartCodeFilter(genChart);
 
         //保存图表信息到数据库
         Chart updateChart = new Chart();
@@ -313,7 +318,7 @@ public class ChartController {
         updateChart.setGenResult(genResult);
         //到此,生成成功,修改图标状态为成功
         updateChart.setStatus(ChartStatus.SUCCEED.getValue());
-        boolean saveResult = chartService.updateById(updateChart);
+        boolean saveResult = chartService.save(updateChart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
 
         //返回前端响应信息
@@ -321,31 +326,9 @@ public class ChartController {
         biResponse.setGenChart(genChart);
         biResponse.setGenResult(genResult);
         biResponse.setChartId(chart.getId());
-
         return ResultUtils.success(biResponse);
-
-        //// 文件目录：根据业务、用户来划分
-        //String uuid = RandomStringUtils.randomAlphanumeric(8);
-        //String filename = uuid + "-" + multipartFile.getOriginalFilename();
-        //File file = null;
-        //try {
-        //
-        //    // 返回可访问地址
-        //    return ResultUtils.success("");
-        //} catch (Exception e) {
-        //    //log.error("file upload error, filepath = " + filepath, e);
-        //    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
-        //} finally {
-        //    if (file != null) {
-        //        // 删除临时文件
-        //        boolean delete = file.delete();
-        //        if (!delete) {
-        //            //log.error("file delete error, filepath = {}", filepath);
-        //        }
-        //    }
-        //}
-
     }
+
 
     /**
      * 图表生成(异步)
@@ -377,8 +360,7 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
         // 限流判断，每个用户一个限流器
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
-
-        long biModelId = 1659171950288818178L;
+        
 
         // 构造用户输入
         StringBuilder userInput = new StringBuilder();
@@ -417,15 +399,21 @@ public class ChartController {
                 handleChartUpdateError(chart.getId(), "更新图表执行中状态失败");
                 return;
             }
-            // 调用 AI
-            String result = aiManager.doChat(biModelId, userInput.toString());
-            String[] splits = result.split("【【【【【");
-            if (splits.length < 3) {
-                handleChartUpdateError(chart.getId(), "AI 生成错误");
-                return;
+
+            //调用Ai
+            String result = aiManager.doChat(null, userInput.toString());
+            //对生成结果分割
+            String[] split = result.split("分割标记：》》》》》");
+            if (split.length < 3) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "AI 生成错误");
             }
-            String genChart = splits[1].trim();
-            String genResult = splits[2].trim();
+            String genChart = split[1].trim();
+            String genResult = split[2].trim();
+
+            //过滤生成的图表代码
+            genChart = genChartCodeFilter(genChart);
+
+            //更新数据库
             Chart updateChartResult = new Chart();
             updateChartResult.setId(chart.getId());
             updateChartResult.setGenChart(genChart);
@@ -495,17 +483,7 @@ public class ChartController {
         return ResultUtils.success(biResponse);
     }
 
-    private void handleChartUpdateError(long chartId, String execMessage) {
 
-        Chart updateChartResult = new Chart();
-        updateChartResult.setId(chartId);
-        updateChartResult.setStatus(ChartStatus.FAILED.getValue());
-        updateChartResult.setExecMessage(execMessage);
-        boolean updateResult = chartService.updateById(updateChartResult);
-        if (!updateResult) {
-            log.error("更新图表失败状态失败" + chartId + "," + execMessage);
-        }
-    }
 
 
     /**
@@ -536,6 +514,58 @@ public class ChartController {
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    /**
+     * 使用正则表达式过滤生成的图表的代码
+     *
+     * @param genChart
+     * @return 经过json处理后的图表代码
+     */
+    private String genChartCodeFilter(String genChart) {
+        // 定义正则表达式,来过滤生成的结果
+        //过滤```javascript标签
+        String extractedData=genChart;
+        String regex = "```javascript\\s*(.*?)\\s*```";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(genChart);
+
+        if (matcher.find()) {
+            extractedData = matcher.group(1);
+        }
+        ////过滤option标签
+        String regex2 = "option\\s*=\\s*\\{(.*?)\\};";
+        Pattern pattern2 = Pattern.compile(regex2, Pattern.DOTALL);
+        Matcher matcher2 = pattern2.matcher(extractedData);
+
+        if (matcher2.find()) {
+            extractedData = "{" + matcher2.group(1) + "}";
+        }
+        extractedData = JSON.parse(extractedData).toString();
+        //检查图表代码是否是以{}为开始结束标记
+        // 移除字符串中的空格和换行符
+        extractedData= extractedData.replaceAll("\\s", "");
+        if (!extractedData.startsWith("{") && extractedData.endsWith("}")){
+            log.error("图表代码错误");
+        }
+        return extractedData;
+    }
+    /**
+     * 更新图表异常的处理
+     *
+     * @param chartId
+     * @param execMessage
+     */
+    private void handleChartUpdateError(long chartId, String execMessage) {
+
+        Chart updateChartResult = new Chart();
+        updateChartResult.setId(chartId);
+        updateChartResult.setStatus(ChartStatus.FAILED.getValue());
+        updateChartResult.setExecMessage(execMessage);
+        boolean updateResult = chartService.updateById(updateChartResult);
+        if (!updateResult) {
+            log.error("更新图表失败状态失败" + chartId + "," + execMessage);
+        }
     }
 
 }

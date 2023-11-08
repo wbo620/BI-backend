@@ -1,8 +1,8 @@
 package com.ice.init.bizmq;
 
+import com.alibaba.fastjson.JSON;
 import com.ice.init.common.ErrorCode;
 import com.ice.init.constant.BiMqConstant;
-import com.ice.init.constant.CommonConstant;
 import com.ice.init.exception.BusinessException;
 import com.ice.init.manager.AiManager;
 import com.ice.init.model.entity.Chart;
@@ -18,6 +18,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @Slf4j
@@ -61,9 +63,10 @@ public class BiMessageConsumer {
         }
 
         String userInput = buildUserInput(chart);
-        // 调用 AI
-        String result = aiManager.doChat(CommonConstant.BI_MODEL_ID, userInput);
-        String[] splits = result.split("【【【【【");
+        //调用Ai
+        String result = aiManager.doChat(null, userInput.toString());
+        //对生成结果分割
+        String[] splits = result.split("分割标记：》》》》》");
         if (splits.length < 3) {
             // 如果更新图表成功状态失败，拒绝消息并处理图表更新错误
             channel.basicNack(deliveryTag, false, false);
@@ -72,6 +75,7 @@ public class BiMessageConsumer {
         }
         String genChart = splits[1].trim();
         String genResult = splits[2].trim();
+        genChart=genChartCodeFilter(genChart);
         // 调用AI得到结果之后,再更新一次
         Chart updateChartResult = new Chart();
         updateChartResult.setId(chart.getId());
@@ -80,6 +84,7 @@ public class BiMessageConsumer {
 
         updateChartResult.setStatus(ChartStatus.SUCCEED.getValue());
         boolean updateResult = chartService.updateById(updateChartResult);
+
         if (!updateResult) {
             // 如果更新图表成功状态失败，拒绝消息并处理图表更新错误
             channel.basicNack(deliveryTag, false, false);
@@ -126,5 +131,38 @@ public class BiMessageConsumer {
             log.error("更新图表失败状态失败" + chartId + "," + execMessage);
         }
     }
+    /**
+     * 使用正则表达式过滤生成的图表的代码
+     *
+     * @param genChart
+     * @return 经过json处理后的图表代码
+     */
+    private String genChartCodeFilter(String genChart) {
+        // 定义正则表达式,来过滤生成的结果
+        //过滤```javascript标签
+        String extractedData=genChart;
+        String regex = "```javascript\\s*(.*?)\\s*```";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(genChart);
 
+        if (matcher.find()) {
+            extractedData = matcher.group(1);
+        }
+        ////过滤option标签
+        String regex2 = "option\\s*=\\s*\\{(.*?)\\};";
+        Pattern pattern2 = Pattern.compile(regex2, Pattern.DOTALL);
+        Matcher matcher2 = pattern2.matcher(extractedData);
+
+        if (matcher2.find()) {
+            extractedData = "{" + matcher2.group(1) + "}";
+        }
+        extractedData = JSON.parse(extractedData).toString();
+        //检查图表代码是否是以{}为开始结束标记
+        // 移除字符串中的空格和换行符
+        extractedData= extractedData.replaceAll("\\s", "");
+        if (!extractedData.startsWith("{") && extractedData.endsWith("}")){
+            log.error("图表代码错误");
+        }
+        return extractedData;
+    }
 }
