@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 // 使用@Component注解标记该类为一个组件，让Spring框架能够扫描并将其纳入管理
-@Component
+//@Component
 // 使用@Slf4j注解生成日志记录器
 @Slf4j
 public class MyMessageConsumer {

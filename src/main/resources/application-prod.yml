@@ -23,7 +23,14 @@ spring:
     host: localhost
     port: 6379
     timeout: 5000
-  #    password: 123456
+    password: 123123
+  #RabbitMQ 配置
+  # todo 需替换配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    password: test
+    username: test
   # Elasticsearch 配置
   # todo 需替换配置
 #  elasticsearch:
@@ -39,3 +46,24 @@ yuapi:
   client:
     access-key: 8ne9rqrgjdoeh6ntuydkwp3zofr2hrn6
     secret-key: dttowbf7ioxwtmub4ld6mzca86b1v72q
+xfxh:
+  # 服务引擎使用 讯飞星火认知大模型V2.0，如果使用 V1.5 需要将 hostUrl 修改为 https://spark-api.xf-yun.com/v1.1/chat
+  #  hostUrl: https://spark-api.xf-yun.com/v2.1/chat
+  #  hostUrl: https://xinghuo.xfyun.cn/botweb/2029256
+  hostUrl: https://spark-openapi.cn-huabei-1.xf-yun.com/v1/assistants/2yc1xv9z192z_v1
+  # 发送请求时指定的访问领域，如果是 V1.5版本 设置为 general，如果是 V2版本 设置为 generalv2
+  domain: generalv2
+  # 核采样阈值。用于决定结果随机性，取值越高随机性越强即相同的问题得到的不同答案的可能性越高。取值 [0,1]
+  temperature: 0.4
+  # 模型回答的tokens的最大长度，V1.5取值为[1,4096]，V2.0取值为[1,8192]。
+  maxTokens: 2048
+  # 大模型回复问题的最大响应时长，单位 s
+  maxResponseTime: 60
+  # 允许同时连接大模型的 websocket 数，如果是普通（免费）用户为 2，超过这个数连接响应会报错，具体参考官网。
+  QPS: 2
+  # 用于权限验证，从服务接口认证信息中获取
+  appId: ef29e67a
+  # 用于权限验证，从服务接口认证信息中获取
+  apiKey: 89b99944d0590b1b0fa339c26cc5662b
+  # 用于权限验证，从服务接口认证信息中获取
+  apiSecret: YjE4NTk4ZTY1ZGNjNjlkMGE1ZDk3NjVm

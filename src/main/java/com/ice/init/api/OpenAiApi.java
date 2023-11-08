@@ -29,6 +29,7 @@ public class OpenAiApi {
         Map<String, Object> hashMap = new HashMap<String, Object>();
         hashMap.put("message", prompt);
         String jsonStr = JSONUtil.toJsonStr(hashMap);
+        System.out.println(jsonStr);
         String body = HttpRequest.post(url)
                 .header("Authorization", "Bearer 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")
                 .body(jsonStr)
