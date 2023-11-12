@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * 消息对象
- *
- * @author 狐狸半面添
- * @create 2023-09-15 0:42
  */
 @Data
 @AllArgsConstructor

@@ -11,10 +11,7 @@ import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * @author 狐狸半面添
- * @create 2023-09-15 1:11
- */
+
 @Slf4j
 public class XfXhWebSocketListener extends WebSocketListener {
     private StringBuilder answer = new StringBuilder();

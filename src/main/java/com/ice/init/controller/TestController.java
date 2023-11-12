@@ -16,10 +16,6 @@ import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.UUID;
 
-/**
- * @author 狐狸半面添
- * @create 2023-09-20 1:42
- */
 @RestController
 @RequestMapping("/test")
 @Slf4j

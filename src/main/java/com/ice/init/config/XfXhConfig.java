@@ -5,8 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author 狐狸半面添
- * @create 2023-09-15 0:46
+ *讯飞星火大模型配置文件
  */
 @Configuration
 @ConfigurationProperties(prefix = "xfxh")

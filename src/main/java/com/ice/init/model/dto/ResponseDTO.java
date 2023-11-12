@@ -9,9 +9,6 @@ import java.util.List;
 /**
  * 返回参数
  * 对应生成的 JSON 结构参考 resources/demo-json/response.json
- *
- * @author 狐狸半面添
- * @create 2023-09-15 0:42
  */
 @NoArgsConstructor
 @Data

@@ -17,10 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * @author 狐狸半面添
- * @create 2023-09-15 1:10
- */
 @Component
 @Slf4j
 public class XfXhStreamClient {
