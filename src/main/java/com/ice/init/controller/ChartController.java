@@ -312,13 +312,12 @@ public class ChartController {
         genChart = genChartCodeFilter(genChart);
 
         //保存图表信息到数据库
-        Chart updateChart = new Chart();
-        updateChart.setId(chart.getId());
-        updateChart.setGenChart(genChart);
-        updateChart.setGenResult(genResult);
+        chart.setId(chart.getId());
+        chart.setGenChart(genChart);
+        chart.setGenResult(genResult);
         //到此,生成成功,修改图标状态为成功
-        updateChart.setStatus(ChartStatus.SUCCEED.getValue());
-        boolean saveResult = chartService.save(updateChart);
+        chart.setStatus(ChartStatus.SUCCEED.getValue());
+        boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
 
         //返回前端响应信息

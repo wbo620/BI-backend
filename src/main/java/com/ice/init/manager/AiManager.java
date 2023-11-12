@@ -13,7 +13,6 @@ import com.ice.init.exception.BusinessException;
 import com.ice.init.listener.XfXhStreamClient;
 import com.ice.init.listener.XfXhWebSocketListener;
 import com.ice.init.model.dto.MsgDTO;
-import com.rabbitmq.client.LongString;
 import com.yupi.yucongming.dev.client.YuCongMingClient;
 import com.yupi.yucongming.dev.common.BaseResponse;
 import com.yupi.yucongming.dev.model.DevChatRequest;
@@ -65,7 +64,7 @@ public class AiManager {
 
     /**
      * 发送问题
-     *
+     * XfxhManager
      * @param message 问题
      * @return 星火大模型的回答
      */
