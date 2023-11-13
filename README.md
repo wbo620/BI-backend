@@ -8,9 +8,9 @@
 
 
 
-## 项目架构图![VTmhbaSkLosUirxhgdwcdtgintb](/Users/hallen/Decuments/Downie4/VTmhbaSkLosUirxhgdwcdtgintb.png)
+## 项目架构图
 
-
+![输入图片说明](doc/VTmhbaSkLosUirxhgdwcdtgintb.png)
 
 ## 技术选型
 
@@ -40,9 +40,11 @@
 
 分析页面
 
-![1699876463906](/Users/hallen/Downloads/1699876463906.JPEG)
+![输入图片说明](doc/1699876463906.JPEG)
 
 
 
-图表页面![1699876601135](/Users/hallen/Downloads/1699876601135.png)
+图表页面
 
+
+![输入图片说明](doc/1699876601135.png)
