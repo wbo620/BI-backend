@@ -12,7 +12,7 @@ import com.ice.init.config.XfXhConfig;
 import com.ice.init.exception.BusinessException;
 import com.ice.init.listener.XfXhStreamClient;
 import com.ice.init.listener.XfXhWebSocketListener;
-import com.ice.init.model.dto.MsgDTO;
+import com.ice.init.model.dto.xfxh.MsgDTO;
 import com.yupi.yucongming.dev.client.YuCongMingClient;
 import com.yupi.yucongming.dev.common.BaseResponse;
 import com.yupi.yucongming.dev.model.DevChatRequest;

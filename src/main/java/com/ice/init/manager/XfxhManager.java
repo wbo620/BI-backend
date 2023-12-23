@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.ice.init.config.XfXhConfig;
 import com.ice.init.listener.XfXhStreamClient;
 import com.ice.init.listener.XfXhWebSocketListener;
-import com.ice.init.model.dto.MsgDTO;
+import com.ice.init.model.dto.xfxh.MsgDTO;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import org.springframework.stereotype.Service;

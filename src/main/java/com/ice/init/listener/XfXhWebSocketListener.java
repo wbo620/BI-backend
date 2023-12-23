@@ -1,8 +1,8 @@
 package com.ice.init.listener;
 
 import com.alibaba.fastjson.JSONObject;
-import com.ice.init.model.dto.MsgDTO;
-import com.ice.init.model.dto.ResponseDTO;
+import com.ice.init.model.dto.xfxh.MsgDTO;
+import com.ice.init.model.dto.xfxh.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.WebSocket;

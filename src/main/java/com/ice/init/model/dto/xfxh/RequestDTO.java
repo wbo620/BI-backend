@@ -1,4 +1,4 @@
-package com.ice.init.model.dto;
+package com.ice.init.model.dto.xfxh;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * 主类（项目启动入口）
  */
-//TODO 可优化点:1. 优化用户增加图表的逻辑 2.add图表删除功能 3.优化图表代码的校验
+//TODO 可优化点:1. 优化用户增加图表的逻辑 3.优化图表代码的校验
 // todo 如需开启 Redis，须移除 exclude 中的内容
 @SpringBootApplication(exclude = {RedisAutoConfiguration.class})
 @MapperScan("com.ice.init.mapper")

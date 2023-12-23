@@ -1,4 +1,4 @@
-package com.ice.init.model.dto;
+package com.ice.init.model.dto.xfxh;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
