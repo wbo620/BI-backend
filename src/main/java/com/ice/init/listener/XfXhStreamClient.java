@@ -20,12 +20,6 @@ import java.util.*;
 @Component
 @Slf4j
 public class XfXhStreamClient {
-    @Resource
-    private XfXhConfig xfXhConfig;
-
-    @Value("${xfxh.QPS}")
-    private int connectionTokenCount;
-
     /**
      * 获取令牌
      */
@@ -34,6 +28,10 @@ public class XfXhStreamClient {
      * 归还令牌
      */
     public static int BACK_TOKEN_STATUS = 1;
+    @Resource
+    private XfXhConfig xfXhConfig;
+    @Value("${xfxh.QPS}")
+    private int connectionTokenCount;
 
     /**
      * 操作令牌

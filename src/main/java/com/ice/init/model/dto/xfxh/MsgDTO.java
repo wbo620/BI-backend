@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MsgDTO {
+    public static final String ROLE_USER = "user";
+    public static final String ROLE_ASSISTANT = "assistant";
     /**
      * 角色
      */
@@ -25,9 +27,6 @@ public class MsgDTO {
      * 响应结果字段：结果序号，取值为[0,10]; 当前为保留字段，开发者可忽略
      */
     private Integer index;
-
-    public static final String ROLE_USER = "user";
-    public static final String ROLE_ASSISTANT = "assistant";
 
     public static MsgDTO createUserMsg(String content) {
         return new MsgDTO(ROLE_USER, content, null);

@@ -6,8 +6,6 @@
 
 区别于传统的BI，用户只需要提供原始数据、并输入分析需求，就能自动生成可视化图表以及分析结论，实现对数据的分析。
 
-
-
 ## 项目架构图
 
 ![输入图片说明](doc/VTmhbaSkLosUirxhgdwcdtgintb.png)
@@ -36,15 +34,10 @@
 - Swagger+Knife4j接口文档生成
 - Hutool、Apache Common Utils等工具库
 
-
-
 分析页面
 
 ![输入图片说明](doc/1699876463906.JPEG)
 
-
-
 图表页面
-
 
 ![输入图片说明](doc/1699876601135.png)

@@ -1,6 +1,9 @@
 package com.ice.init.mq;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
 
 public class DirectConsumer {
     // 定义我们正在监听的交换机名称"direct-exchange"

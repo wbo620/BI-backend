@@ -47,11 +47,11 @@ public class AiManager {
      * @param message
      * @return
      */
-    public String doChat2(long modelId, String message) {
+    public String doChat1(Long modelId, String message) {
         // 第三步，构造请求参数
         DevChatRequest devChatRequest = new DevChatRequest();
         // 模型id，尾后加L，转成long类型
-        devChatRequest.setModelId(modelId);
+        devChatRequest.setModelId(1716357220276785154L);
         devChatRequest.setMessage(message);
         // 第四步，获取响应结果
         BaseResponse<DevChatResponse> response = yuCongMingClient.doChat(devChatRequest);
@@ -65,10 +65,11 @@ public class AiManager {
     /**
      * 发送问题
      * XfxhManager
+     *
      * @param message 问题
      * @return 星火大模型的回答
      */
-    public String doChat(Long id,String message) {
+    public String doChat(Long id, String message) {
         // 如果是无效字符串，则不对大模型进行请求
         if (StrUtil.isBlank(message)) {
             return "无效问题，请重新输入";

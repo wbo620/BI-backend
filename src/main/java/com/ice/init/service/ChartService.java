@@ -1,7 +1,7 @@
 package com.ice.init.service;
 
-import com.ice.init.model.entity.Chart;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ice.init.model.entity.Chart;
 
 /**
  * @author hallen

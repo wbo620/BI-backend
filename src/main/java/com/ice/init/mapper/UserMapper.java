@@ -1,7 +1,7 @@
 package com.ice.init.mapper;
 
-import com.ice.init.model.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ice.init.model.entity.User;
 
 /**
  * @author hallen

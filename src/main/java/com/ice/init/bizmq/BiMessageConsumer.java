@@ -75,7 +75,7 @@ public class BiMessageConsumer {
         }
         String genChart = splits[1].trim();
         String genResult = splits[2].trim();
-        genChart=genChartCodeFilter(genChart);
+        genChart = genChartCodeFilter(genChart);
         // 调用AI得到结果之后,再更新一次
         Chart updateChartResult = new Chart();
         updateChartResult.setId(chart.getId());
@@ -106,7 +106,11 @@ public class BiMessageConsumer {
         String csvData = chart.getChartData();
         //构建用户输入
         StringBuilder userInput = new StringBuilder();
-        //userInput.append("你是一个专业的数据分析师,接下来我会给你我的分析目标的原始数据,请给出分析结论.");
+        //userInput.append("你是一个专业的数据分析师和前端工程师,接下来我会给出分析目标的csv格式的原始数据，用,作为分隔符,你的工作是分析给出的数据,使用合适的数据列生成正确的图表代码,并给出分析结论," +
+        //                "请使用纯文本输出，图表代码使用前端 Echarts V5.0的格式的 option 标记包含的配置对象js代码\n" );
+        //userInput.append("下面我将要给你一份CSV格式的原始数据，其中以逗号作为分隔符。" +
+        //        "你的任务是利用你的数据分析和前端工程技能，根据适当的数据列生成正确的图表代码，使用前端 Echarts V5.0的格式的option标记包含的配置对象JS代码。请确保输出为纯文本，并附上你的分析结论。\n" );
+        //userInput.append("你是一个专业的数据分析师和前端工程师,接下来我会给出分析需求的csv格式的原始数据\n");
         //拼接需求和目标
         userInput.append("分析需求: ").append("\n");
         String userGoal = goal;
@@ -114,9 +118,16 @@ public class BiMessageConsumer {
             userGoal += ",使用" + chartType;
         }
         userInput.append(userGoal).append("\n");
-        userInput.append("原始数据: ").append("\n");
+        userInput.append("原始数据:").append("\n");
         //压缩后的数据
         userInput.append(csvData).append("\n");
+
+        userInput.append("请根据这两部分内容，按照以下指定格式生成：\n" +
+                "分割标记：》》》》》\n" +
+                "{纯文本输出，前端 Echarts V5.0的格式的 option 标记包含的配置对象JS代码，生成的键都要使用双引号包围，合理地将数据进行可视化，不要生成任何多余的内容，比如注释，Markdown标记等}\n" +
+                "\n" +
+                "分割标记：》》》》》\n" +
+                "这里输出分析结论，越详细越好，不要生成多余的注释");
 
         return userInput.toString();
     }
@@ -131,6 +142,7 @@ public class BiMessageConsumer {
             log.error("更新图表失败状态失败" + chartId + "," + execMessage);
         }
     }
+
     /**
      * 使用正则表达式过滤生成的图表的代码
      *
@@ -140,7 +152,7 @@ public class BiMessageConsumer {
     private String genChartCodeFilter(String genChart) {
         // 定义正则表达式,来过滤生成的结果
         //过滤```javascript标签
-        String extractedData=genChart;
+        String extractedData = genChart;
         String regex = "```javascript\\s*(.*?)\\s*```";
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(genChart);
@@ -159,8 +171,8 @@ public class BiMessageConsumer {
         extractedData = JSON.parse(extractedData).toString();
         //检查图表代码是否是以{}为开始结束标记
         // 移除字符串中的空格和换行符
-        extractedData= extractedData.replaceAll("\\s", "");
-        if (!extractedData.startsWith("{") && extractedData.endsWith("}")){
+        extractedData = extractedData.replaceAll("\\s", "");
+        if (!extractedData.startsWith("{") && extractedData.endsWith("}")) {
             log.error("图表代码错误");
         }
         return extractedData;

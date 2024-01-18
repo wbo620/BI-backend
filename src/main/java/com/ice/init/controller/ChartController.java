@@ -25,7 +25,6 @@ import com.ice.init.service.ChartService;
 import com.ice.init.service.UserService;
 import com.ice.init.utils.ExcelUtils;
 import com.ice.init.utils.SqlUtils;
-import com.rabbitmq.client.Return;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -278,8 +276,8 @@ public class ChartController {
         //        "{明确的数据分析结论、越详细越好，不要生成多余的注释}";
 
         //用户输入,拼接需求和目标
+        //构造prompt
         StringBuilder userInput = new StringBuilder();
-        //userInput.append("你是一个专业的数据分析师,接下来我会给你我的分析需求的原始数据,请给出分析结论.");
         userInput.append("分析需求: ").append("\n");
         String userGoal = goal;
         if (StringUtils.isNotBlank(chartType)) {
@@ -290,6 +288,13 @@ public class ChartController {
         //压缩数据(csv)
         String csvData = ExcelUtils.excelToCsv(multipartFile);
         userInput.append(csvData).append("\n");
+        userInput.append("请根据这两部分内容，按照以下指定格式生成：\n" +
+                "分割标记：》》》》》\n" +
+                "{纯文本输出，前端 Echarts V5.0的格式的 option 标记包含的配置对象JS代码，生成的键都要使用双引号包围，合理地将数据进行可视化，不要生成任何多余的内容，比如注释，Markdown标记等}\n" +
+                "\n" +
+                "分割标记：》》》》》\n" +
+                "这里输出分析结论，越详细越好，不要生成多余的注释");
+
 
         Chart chart = new Chart();
         chart.setGoal(goal);
@@ -300,6 +305,7 @@ public class ChartController {
 
         //调用Ai
         String result = aiManager.doChat(null, userInput.toString());
+
         //对生成结果分割
         String[] split = result.split("分割标记：》》》》》");
         if (split.length < 3) {
@@ -359,7 +365,7 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
         // 限流判断，每个用户一个限流器
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
-        
+
 
         // 构造用户输入
         StringBuilder userInput = new StringBuilder();
@@ -401,6 +407,8 @@ public class ChartController {
 
             //调用Ai
             String result = aiManager.doChat(null, userInput.toString());
+            log.info("生成内容: " + result);
+            System.out.println(result);
             //对生成结果分割
             String[] split = result.split("分割标记：》》》》》");
             if (split.length < 3) {
@@ -472,6 +480,7 @@ public class ChartController {
         chart.setChartType(chartType);
         chart.setStatus(ChartStatus.WAIT.getValue());
         chart.setUserId(loginUser.getId());
+
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
         Long newChartId = chart.getId();
@@ -481,8 +490,6 @@ public class ChartController {
         biResponse.setChartId(newChartId);
         return ResultUtils.success(biResponse);
     }
-
-
 
 
     /**
@@ -524,7 +531,7 @@ public class ChartController {
     private String genChartCodeFilter(String genChart) {
         // 定义正则表达式,来过滤生成的结果
         //过滤```javascript标签
-        String extractedData=genChart;
+        String extractedData = genChart;
         String regex = "```javascript\\s*(.*?)\\s*```";
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         Matcher matcher = pattern.matcher(genChart);
@@ -543,12 +550,13 @@ public class ChartController {
         extractedData = JSON.parse(extractedData).toString();
         //检查图表代码是否是以{}为开始结束标记
         // 移除字符串中的空格和换行符
-        extractedData= extractedData.replaceAll("\\s", "");
-        if (!extractedData.startsWith("{") && extractedData.endsWith("}")){
+        extractedData = extractedData.replaceAll("\\s", "");
+        if (!extractedData.startsWith("{") && extractedData.endsWith("}")) {
             log.error("图表代码错误");
         }
         return extractedData;
     }
+
     /**
      * 更新图表异常的处理
      *

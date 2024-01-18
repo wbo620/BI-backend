@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- *讯飞星火大模型配置文件
+ * 讯飞星火大模型配置文件
  */
 @Configuration
 @ConfigurationProperties(prefix = "xfxh")
