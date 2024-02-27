@@ -169,6 +169,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 
+
     /**
      * 用户注销
      *

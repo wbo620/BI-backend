@@ -1,5 +1,6 @@
 package com.ice.init.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ice.init.annotation.AuthCheck;
 import com.ice.init.common.BaseResponse;
@@ -144,6 +145,12 @@ public class UserController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        //检验删除的是否是管理员
+        User userById = userService.getById(deleteRequest.getId());
+
+        if (userService.isAdmin(userById)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"不能删除其他管理员");
+        }
         boolean b = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(b);
     }
@@ -164,6 +171,11 @@ public class UserController {
         }
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
+        //判断要更新的是否是其他管理员
+        User userById = userService.getById(user.getId());
+        if (userService.isAdmin(userById)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"不能修改其他管理员");
+        }
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
